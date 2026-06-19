@@ -17,6 +17,7 @@ async function gh(env: Env, path: string, init: RequestInit = {}) {
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
       'Content-Type': 'application/json',
+      'User-Agent': 'portfolio-publish-worker', // GitHub API 强制要求
       ...(init.headers || {}),
     },
   });
@@ -29,9 +30,14 @@ async function gh(env: Env, path: string, init: RequestInit = {}) {
 
 /** 确保草稿分支存在（从 main 创建） */
 async function ensureBranch(env: Env) {
-  // 取 main 分支引用
-  const mainRef = await gh(env, `/repos/${env.GH_REPO}/git/ref/heads/main`).catch(() => null);
-  if (!mainRef) throw new Error('无法获取 main 分支，请确认仓库与 Token 权限');
+  // 取 main 分支引用（保留原始错误信息便于排查）
+  let mainRef: any = null;
+  try {
+    mainRef = await gh(env, `/repos/${env.GH_REPO}/git/ref/heads/main`);
+  } catch (e: any) {
+    throw new Error(`获取 main 分支失败：${e.message}`);
+  }
+  if (!mainRef) throw new Error('无法获取 main 分支（返回空）');
   const sha = mainRef.object.sha;
 
   // 尝试创建草稿分支；已存在则忽略

@@ -5,8 +5,8 @@ compatibility_date = "2025-01-01"
 # 环境变量（本地用 .dev.vars，生产用 wrangler secret put）
 # 复制 .dev.vars.example 为 .dev.vars 并填入本地测试值
 [vars]
-MODE = "local"            # local | github
-CONTENT_DIR = "../src/content"  # 本地模式下写入的网站内容目录
+# 生产环境固定为 github（本地开发用 scripts/local-server.mjs，不依赖此值）
+# 本地模式的 CONTENT_DIR 仅 local-server.mjs 使用，不在此配置
 
 # 以下敏感变量用 secret 管理，勿提交：
 # API_KEY    —— 调用接口的鉴权密钥

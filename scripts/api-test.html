@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>发布接口测试工具</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; background:#fafafa; color:#222; }
+  h1 { font-size: 22px; }
+  .card { background:#fff; border:1px solid #e5e5e5; border-radius:8px; padding:20px; margin:16px 0; }
+  button { background:#2563eb; color:#fff; border:none; padding:10px 18px; border-radius:6px; cursor:pointer; font-size:14px; margin:4px 6px 4px 0; }
+  button:hover { opacity:.9; }
+  button.gray { background:#666; }
+  pre { background:#1e1e1e; color:#eee; padding:12px; border-radius:6px; overflow:auto; font-size:12px; max-height:300px; white-space:pre-wrap; word-break:break-all; }
+  label { display:block; font-size:13px; color:#666; margin:8px 0 4px; }
+  input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-family:inherit; font-size:13px; box-sizing:border-box; }
+  .small { font-size:12px; color:#888; margin-top:4px; }
+  .ok { color:#16a34a; font-weight:bold; }
+  .err { color:#dc2626; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<h1>🔌 发布接口测试工具</h1>
+<p class="small">在浏览器里点按钮即可测试接口（走你的 VPN 网络）。不存储任何数据。</p>
+
+<div class="card">
+  <label>接口地址</label>
+  <input id="base" value="https://portfolio-publish.zhedalibo.workers.dev">
+  <label>API Key</label>
+  <input id="key" value="06c38b22f068d23777f4ab20131b7a67e380ffbd558cb273">
+  <div style="margin-top:12px">
+    <button onclick="health()">1. 健康检查</button>
+    <button onclick="publishArticle()">2. 测试发布文章</button>
+    <button class="gray" onclick="clearOut()">清空结果</button>
+  </div>
+</div>
+
+<div class="card">
+  <label>返回结果</label>
+  <pre id="out">（点上面的按钮看结果）</pre>
+</div>
+
+<div class="card">
+  <label>自定义测试（高级，可改 JSON）</label>
+  <textarea id="body" rows="10">{
+  "slug": "hello-from-api",
+  "title": "通过接口发布的第一篇文章",
+  "summary": "测试 AI 发布接口是否正常工作",
+  "content": "## 测试成功\n\n如果你能在 GitHub 和网站上看到这篇文章，说明发布接口完全打通了。",
+  "platform": "本站",
+  "tags": ["测试"],
+  "draft": true
+}</textarea>
+  <div style="margin-top:8px">
+    <button onclick="customPost('articles')">发布文章</button>
+    <button onclick="customPost('novels')">发布小说</button>
+    <button onclick="customPost('tools')">发布工具</button>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function log(msg) {
+  $('out').textContent = msg;
+}
+
+async function req(path, method = 'GET', body = null) {
+  const base = $('base').value.replace(/\/$/, '');
+  const key = $('key').value;
+  const headers = { 'Content-Type': 'application/json', 'X-API-Key': key };
+  log(`⏳ ${method} ${base}${path} ...`);
+  try {
+    const res = await fetch(base + path, { method, headers, body: body ? JSON.stringify(body) : null });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = text; }
+    const status = res.status;
+    const mark = (status >= 200 && status < 300) ? '✅' : '❌';
+    log(`${mark} HTTP ${status}\n\n${JSON.stringify(data, null, 2)}`);
+    return { status, data };
+  } catch (e) {
+    log(`❌ 请求失败：${e.message}\n\n可能原因：网络不通（VPN未连？）/ 接口地址错误 / CORS`);
+    return { status: 0, data: null };
+  }
+}
+
+async function health() {
+  await req('/api/health');
+}
+
+async function publishArticle() {
+  await req('/api/articles', 'POST', {
+    slug: 'hello-from-api',
+    title: '通过接口发布的第一篇文章',
+    summary: '测试 AI 发布接口是否正常工作',
+    content: '## 测试成功\n\n如果你能在 GitHub 和网站上看到这篇文章，说明发布接口完全打通了。',
+    platform: '本站',
+    tags: ['测试'],
+    draft: true
+  });
+}
+
+async function customPost(type) {
+  try {
+    const body = JSON.parse($('body').value);
+    await req('/api/' + type, 'POST', body);
+  } catch (e) {
+    log('❌ JSON 格式错误：' + e.message);
+  }
+}
+
+function clearOut() { log('（已清空）'); }
+</script>
+
+</body>
+</html>
