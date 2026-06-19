@@ -1,0 +1,10 @@
+# 本地开发密钥文件（复制此文件为 .dev.vars 并填值）
+# 生产环境用 `wrangler secret put API_KEY` 设置，不要提交真实值
+
+# 调用接口的鉴权密钥（本地随便填一个，AI 调用时 header 带同样的值）
+API_KEY="dev-test-key"
+
+# 仅生产模式（MODE=github）需要：
+GH_TOKEN=""
+GH_REPO="owner/repo"
+GH_BRANCH="content/draft"

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import { getArticles } from '@/lib/content';
+
+const articles = await getArticles();
+---
+
+<BaseLayout title="文章" description="全部文章作品">
+  <header class="mb-10">
+    <h1 class="text-3xl font-bold mb-2 text-foreground tracking-tight">📝 文章</h1>
+    <p class="text-gray-600 dark:text-gray-700">关于 AI、写作、独立开发的所思所想。</p>
+  </header>
+
+  {
+    articles.length > 0 ? (
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {articles.map((a) => <ArticleCard article={a} />)}
+      </div>
+    ) : (
+      <p class="text-muted text-center py-20">还没有文章，敬请期待。</p>
+    )
+  }
+</BaseLayout>

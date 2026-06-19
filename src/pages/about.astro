@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE } from '@/consts';
+---
+
+<BaseLayout title="关于" description={`关于 ${SITE.author}`}>
+  <article class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-foreground tracking-tight">关于我</h1>
+
+    <div class="prose max-w-none">
+      <p>
+        你好，我是 <strong>{SITE.author}</strong>。{SITE.bio}
+      </p>
+      <p>
+        这里是我的个人作品集 —— 「{SITE.title}」。
+        我用 AI 写文章、写小说，也用它和代码造工具。这个网站把这三类作品汇集在一处，
+        分门别类地呈现。
+      </p>
+
+      <h2>这里有什么</h2>
+      <ul>
+        <li><strong>📝 文章</strong> —— 关于 AI、写作与独立开发的思考，散见于公众号与本站。</li>
+        <li><strong>📖 小说</strong> —— 用 AI 协作完成的虚构故事，分章节连载，可在站内阅读。</li>
+        <li><strong>🛠️ 工具</strong> —— 一些好玩的小工具、App 与 SaaS 产品。</li>
+      </ul>
+
+      <h2>联系方式</h2>
+      <p>
+        欢迎通过 <a href={`mailto:${SITE.email}`}>{SITE.email}</a> 与我交流。
+        {
+          SITE.social.github && (
+            <a href={SITE.social.github} target="_blank" rel="noopener">GitHub</a>
+          )
+        }
+        上也能找到我。
+      </p>
+    </div>
+  </article>
+</BaseLayout>

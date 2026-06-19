@@ -1,0 +1,104 @@
+---
+import { NAV, SITE } from '@/consts';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 是否为窄阅读列（文章/小说详情用） */
+  narrow?: boolean;
+}
+
+const { title, description, narrow = false } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.subtitle}`;
+const pageDesc = description ?? SITE.description;
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:type" content="website" />
+    <meta name="generator" content={Astro.generator} />
+    {/* 主题：首屏前同步应用，避免闪烁。默认跟随系统偏好 */}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    {/* Header：发丝底边 + 毛玻璃，Geist 风格 */}
+    <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-xl">
+      <div class="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between">
+        <a href="/" class="text-[15px] font-semibold tracking-tight text-foreground hover:text-accent transition-colors">
+          {SITE.title}
+        </a>
+        <nav class="flex items-center gap-1">
+          {
+            NAV.map((item) => (
+              <a
+                href={item.href}
+                class:list={[
+                  'text-[13px] px-3 py-1.5 rounded-md transition-colors',
+                  path.startsWith(item.href) && item.href !== '/'
+                    ? 'text-foreground bg-gray-100 dark:bg-gray-200 font-medium'
+                    : 'text-muted hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-200',
+                ]}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+          {/* 主题切换 */}
+          <button
+            id="theme-toggle"
+            aria-label="切换主题"
+            class="ml-1 w-8 h-8 flex items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors"
+          >
+            <svg class="dark:hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="hidden dark:inline" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class:list={['flex-1 mx-auto w-full max-w-5xl px-6 py-12', narrow && 'max-w-3xl']}>
+      <slot />
+    </main>
+
+    <footer class="border-t border-border mt-20">
+      <div class="mx-auto max-w-5xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[13px] text-muted">
+        <p>© {new Date().getFullYear()} {SITE.author} · {SITE.title}</p>
+        <div class="flex items-center gap-4">
+          {SITE.social.github && <a href={SITE.social.github} target="_blank" rel="noopener" class="hover:text-foreground transition-colors">GitHub</a>}
+          {SITE.social.rss && <a href={SITE.social.rss} class="hover:text-foreground transition-colors">RSS</a>}
+          <a href={`mailto:${SITE.email}`} class="hover:text-foreground transition-colors">Email</a>
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline>
+      // 主题切换交互
+      const btn = document.getElementById('theme-toggle');
+      btn?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const isDark = root.classList.toggle('dark');
+        try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      });
+    </script>
+  </body>
+</html>

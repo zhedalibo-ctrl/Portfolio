@@ -1,0 +1,15 @@
+name = "portfolio-publish"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# 环境变量（本地用 .dev.vars，生产用 wrangler secret put）
+# 复制 .dev.vars.example 为 .dev.vars 并填入本地测试值
+[vars]
+MODE = "local"            # local | github
+CONTENT_DIR = "../src/content"  # 本地模式下写入的网站内容目录
+
+# 以下敏感变量用 secret 管理，勿提交：
+# API_KEY    —— 调用接口的鉴权密钥
+# GH_TOKEN   —— GitHub 细粒度 PAT（生产模式用）
+# GH_REPO    —— 如 owner/repo（生产模式用）
+# GH_BRANCH  —— 草稿分支，如 content/draft（生产模式用）

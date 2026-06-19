@@ -1,0 +1,33 @@
+{
+  "name": "personal-portfolio",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "serve:api": "tsx scripts/local-server.mjs",
+    "test:publish": "node scripts/test-publish.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/rss": "^4.0.11",
+    "@fontsource-variable/geist": "^5.2.9",
+    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.7.0"
+  }
+}

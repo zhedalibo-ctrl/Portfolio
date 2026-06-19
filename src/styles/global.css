@@ -1,0 +1,302 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Geist 字体 */
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+/* 明暗自动跟随 .dark */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =========================================================
+   Geist 骨架 + 蓝色皮肤 —— 亮色
+   浅蓝灰底 + 靛蓝点缀，保留 Geist 字体/边框/圆角体系
+   ========================================================= */
+:root {
+  --background: 240 244 249;          /* #f0f4f9 极浅蓝灰，柔和有空气感 */
+  --foreground: 17 24 39;             /* gray-900 深墨黑 */
+  --surface: 255 255 255;             /* 卡片白 */
+  --gray-100: 244 247 251;            /* 嵌套浅蓝灰 */
+  --gray-200: 233 238 245;
+  --gray-300: 203 213 225;            /* slate-300 边框 */
+  --gray-400: 148 163 184;
+  --gray-500: 100 116 139;            /* slate-500 */
+  --gray-600: 71 85 105;              /* slate-600 */
+  --gray-700: 51 65 85;               /* slate-700 */
+  --gray-800: 30 41 59;
+  --gray-900: 15 23 42;
+  --gray-1000: 15 23 42;
+  --accent: 37 99 235;                /* #2563eb 靛蓝 */
+  --accent-foreground: 255 255 255;
+  --selection: 37 99 235;
+  --border: 218 224 234;              /* 蓝灰发丝边框 */
+  --border-strong: 203 213 225;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 8px 20px -4px rgb(37 99 235 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.05);
+  /* 主按钮柔和灰蓝（亮色） */
+  --btn-bg: 122 147 173;              /* #7a93ad */
+  --btn-bg-hover: 107 133 160;        /* #6b85a0 */
+  --btn-fg: 255 255 255;
+}
+.dark {
+  --background: 12 16 24;             /* #0c1018 深夜蓝黑 */
+  --foreground: 233 238 248;          /* 偏蓝的暖白字 */
+  --surface: 22 28 40;                /* 蓝灰卡片 */
+  --gray-100: 22 28 40;               /* 次级表面 */
+  --gray-200: 30 38 54;
+  --gray-300: 45 55 72;
+  --gray-400: 71 85 105;
+  --gray-500: 100 116 139;
+  --gray-600: 148 163 184;
+  --gray-700: 203 213 225;
+  --gray-800: 226 232 240;
+  --gray-900: 241 245 249;
+  --gray-1000: 248 250 252;
+  --accent: 96 165 250;               /* blue-400 暗色下更亮的蓝 */
+  --accent-foreground: 12 16 24;
+  --selection: 96 165 250;
+  --border: 38 50 70;                 /* 蓝灰发丝边框 */
+  --border-strong: 51 65 85;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 2px 4px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 8px 24px -4px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(96 165 250 / 0.15);
+  /* 主按钮柔和灰蓝（暗色：更亮的蓝灰，保证可见） */
+  --btn-bg: 138 163 189;              /* #8aa3bd */
+  --btn-bg-hover: 122 147 173;
+  --btn-fg: 12 16 24;
+}
+
+@theme inline {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-surface: rgb(var(--surface));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-border: rgb(var(--border));
+  --color-border-strong: rgb(var(--border-strong));
+
+  /* gray 阶梯（直接映射 token 名） */
+  --color-gray-100: rgb(var(--gray-100));
+  --color-gray-200: rgb(var(--gray-200));
+  --color-gray-300: rgb(var(--gray-300));
+  --color-gray-400: rgb(var(--gray-400));
+  --color-gray-500: rgb(var(--gray-500));
+  --color-gray-600: rgb(var(--gray-600));
+  --color-gray-700: rgb(var(--gray-700));
+  --color-gray-800: rgb(var(--gray-800));
+  --color-gray-900: rgb(var(--gray-900));
+  --color-gray-1000: rgb(var(--gray-1000));
+
+  /* 兼容旧类名（组件仍在用） */
+  --color-page: rgb(var(--background));
+  --color-surface-2: rgb(var(--gray-100));
+  --color-text: rgb(var(--foreground));
+  --color-text-soft: rgb(var(--gray-700));
+  --color-muted: rgb(var(--gray-600));
+  --color-faint: rgb(var(--gray-500));
+  --color-border-soft: rgb(var(--border));
+  --color-accent-soft: rgb(var(--accent) / 0.12);
+
+  --font-sans:
+    "Geist Variable", "PingFang SC", "Noto Sans SC", "Source Han Sans SC",
+    ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:
+    "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif:
+    "Geist Variable", "PingFang SC", "Noto Sans SC",
+    ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+/* =========================================================
+   基础排版
+   ========================================================= */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: rgb(var(--selection) / 0.25);
+  color: var(--foreground);
+}
+
+/* 焦点环（Geist 风格） */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(var(--accent) / 0.5);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Geist 卡片：发丝边框 + 极淡阴影 ---------- */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.1),
+    box-shadow 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.1),
+    transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+.card:hover {
+  border-color: rgb(var(--accent) / 0.4);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- Geist 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  cursor: pointer;
+}
+.btn-primary {
+  background-color: var(--foreground);
+  color: var(--background);
+  border: 1px solid var(--foreground);
+}
+.btn-primary:hover {
+  opacity: 0.85;
+}
+.btn-secondary {
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background-color: var(--gray-100);
+  border-color: var(--border-strong);
+}
+.btn-accent {
+  background-color: rgb(var(--accent));
+  color: rgb(var(--accent-foreground));
+  border: 1px solid rgb(var(--accent));
+}
+.btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* ---------- prose 排版：跟随 Geist token ---------- */
+.prose {
+  --tw-prose-body: rgb(var(--gray-700));
+  --tw-prose-headings: rgb(var(--foreground));
+  --tw-prose-lead: rgb(var(--gray-700));
+  --tw-prose-links: rgb(var(--accent));
+  --tw-prose-bold: rgb(var(--foreground));
+  --tw-prose-counters: rgb(var(--gray-600));
+  --tw-prose-bullets: rgb(var(--gray-400));
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: rgb(var(--gray-700));
+  --tw-prose-quote-borders: rgb(var(--accent));
+  --tw-prose-captions: rgb(var(--gray-500));
+  --tw-prose-code: rgb(var(--foreground));
+  --tw-prose-pre-code: rgb(var(--gray-800));
+  --tw-prose-pre-bg: rgb(var(--gray-100));
+  --tw-prose-th-borders: var(--border-strong);
+  --tw-prose-td-borders: var(--border);
+}
+.prose :where(pre, code):not(:where([class~="not-prose"] *)) {
+  font-family: var(--font-mono);
+}
+.dark .prose {
+  --tw-prose-pre-code: rgb(220 220 220);
+  --tw-prose-pre-bg: rgb(14 14 14);
+}
+
+/* ---------- 原始 HTML 容器 ---------- */
+.raw-html-content {
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+.raw-html-content img { max-width: 100%; height: auto; }
+.raw-html-content p { margin: 0 0 1em; }
+
+/* =========================================================
+   小说阅读器 token（保留，调整为 Geist 配色）
+   ========================================================= */
+.reader {
+  --reader-bg: 255 255 255;
+  --reader-text: 38 38 38;
+  --reader-font-size: 18px;
+  --reader-line-height: 1.95;
+}
+.reader[data-theme="sepia"] {
+  --reader-bg: 248 241 224;
+  --reader-text: 78 56 28;
+}
+.reader[data-theme="dark"] {
+  --reader-bg: 0 0 0;
+  --reader-text: 237 237 237;
+}
+.reader[data-font="serif"] { font-family: var(--font-sans); }
+.reader[data-font="sans"] { font-family: var(--font-sans); }
+
+.reader-content {
+  background-color: rgb(var(--reader-bg));
+  color: rgb(var(--reader-text));
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-line-height);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.reader-content :where(p) { margin: 0 0 1.2em; text-indent: 2em; }
+.reader-content :where(h1, h2, h3) { text-indent: 0; }
+.reader-content :where(blockquote) {
+  text-indent: 0;
+  border-left: 3px solid rgb(var(--reader-text) / 0.3);
+  padding-left: 1em;
+  opacity: 0.85;
+}
+
+.read-progress {
+  position: fixed; top: 64px; left: 0;
+  height: 2px;
+  background: rgb(var(--accent));
+  z-index: 40;
+  transition: width 0.1s linear;
+}
+
+.toc-overlay { position: fixed; inset: 0; background: rgb(0 0 0 / 0.4); z-index: 50; }
+.toc-drawer {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 80%; max-width: 360px;
+  background: rgb(var(--background));
+  z-index: 51; overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  border-right: 1px solid var(--border);
+}
+.toc-drawer[data-open="true"] { transform: translateX(0); }
+
+/* 滚动条 */
+.dark ::-webkit-scrollbar { width: 10px; height: 10px; }
+.dark ::-webkit-scrollbar-track { background: rgb(var(--background)); }
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--border-strong); border-radius: 5px;
+  border: 2px solid rgb(var(--background));
+}

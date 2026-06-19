@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NovelCard from '@/components/cards/NovelCard.astro';
+import { getNovels, getChaptersOf } from '@/lib/content';
+
+const novels = await getNovels();
+const withCounts = await Promise.all(
+  novels.map(async (n) => {
+    const id = n.id.replace(/\/index$/, '');
+    const chapters = await getChaptersOf(id);
+    return { novel: n, count: chapters.length };
+  }),
+);
+---
+
+<BaseLayout title="小说" description="全部小说作品">
+  <header class="mb-10">
+    <h1 class="text-3xl font-bold mb-2 text-foreground tracking-tight">📖 小说</h1>
+    <p class="text-gray-600 dark:text-gray-700">用 AI 协作的虚构世界，分章节连载。</p>
+  </header>
+
+  {
+    withCounts.length > 0 ? (
+      <div class="grid gap-5 sm:grid-cols-2">
+        {withCounts.map(({ novel, count }) => (
+          <NovelCard novel={novel} chapterCount={count} />
+        ))}
+      </div>
+    ) : (
+      <p class="text-muted text-center py-20">书房还空着，故事即将开始。</p>
+    )
+  }
+</BaseLayout>

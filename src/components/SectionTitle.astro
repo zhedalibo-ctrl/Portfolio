@@ -1,0 +1,23 @@
+---
+interface Props {
+  emoji?: string;
+  title: string;
+  moreHref?: string;
+  moreText?: string;
+}
+const { emoji, title, moreHref, moreText = '查看更多' } = Astro.props;
+---
+
+<div class="flex items-end justify-between mb-5">
+  <h2 class="text-xl font-semibold flex items-center gap-2 text-foreground tracking-tight">
+    {emoji && <span class="text-lg">{emoji}</span>}
+    <span>{title}</span>
+  </h2>
+  {
+    moreHref && (
+      <a href={moreHref} class="text-[13px] text-gray-500 hover:text-accent transition-colors">
+        {moreText} →
+      </a>
+    )
+  }
+</div>

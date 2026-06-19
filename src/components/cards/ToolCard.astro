@@ -1,0 +1,44 @@
+---
+import Tag from '@/components/Tag.astro';
+import { slugOf, type Tool } from '@/lib/content';
+
+interface Props {
+  tool: Tool;
+}
+const { tool } = Astro.props;
+const { data } = tool;
+const href = `/tools/${slugOf(tool)}/`;
+
+const statusVariant = data.status === '运营中' ? 'accent' : data.status === '已下线' ? 'muted' : 'default';
+const dotColor = data.status === '运营中' ? 'bg-green-500' : data.status === '开发中' ? 'bg-amber-500' : 'bg-gray-400';
+---
+
+<article class="card group flex flex-col overflow-hidden">
+  <!-- 截图占位 -->
+  <div class="h-28 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-200 dark:to-gray-300 border-b border-border flex items-center justify-center">
+    <span class="text-3xl font-semibold text-gray-400">{data.name.charAt(0)}</span>
+  </div>
+
+  <div class="p-5 flex-1 flex flex-col">
+    <div class="flex items-center gap-2 mb-2">
+      <Tag text={data.type} variant="accent" />
+      <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+        <span class:list={['w-1.5 h-1.5 rounded-full', dotColor]}></span>
+        {data.status}
+      </span>
+    </div>
+
+    <h3 class="text-base font-semibold mb-1 text-foreground tracking-tight group-hover:text-accent transition-colors">
+      <a href={href}>{data.name}</a>
+    </h3>
+
+    <p class="text-sm font-medium text-gray-800 dark:text-gray-800 mb-1.5">{data.tagline}</p>
+    <p class="text-xs text-gray-600 dark:text-gray-700 leading-relaxed line-clamp-2 mb-3 flex-1">
+      {data.description}
+    </p>
+
+    <div class="flex flex-wrap gap-1.5">
+      {data.stack.slice(0, 4).map((s) => <Tag text={s} />)}
+    </div>
+  </div>
+</article>

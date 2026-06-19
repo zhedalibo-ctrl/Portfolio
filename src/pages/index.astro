@@ -1,0 +1,95 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionTitle from '@/components/SectionTitle.astro';
+import ArticleCard from '@/components/cards/ArticleCard.astro';
+import NovelCard from '@/components/cards/NovelCard.astro';
+import ToolCard from '@/components/cards/ToolCard.astro';
+import { SITE, SECTIONS } from '@/consts';
+import {
+  getFeaturedArticles,
+  getFeaturedNovels,
+  getFeaturedTools,
+  getChaptersOf,
+} from '@/lib/content';
+
+const [articles, novels, tools] = await Promise.all([
+  getFeaturedArticles(3),
+  getFeaturedNovels(3),
+  getFeaturedTools(3),
+]);
+
+// 为每部小说附上章节数
+const novelChapterCounts = await Promise.all(
+  novels.map(async (n) => {
+    const id = n.id.replace(/\/index$/, '');
+    const chapters = await getChaptersOf(id);
+    return { novel: n, count: chapters.length };
+  }),
+);
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="text-center py-16 sm:py-24">
+    <h1 class="text-4xl sm:text-5xl font-bold mb-5 tracking-tight text-foreground">
+      {SITE.title}
+    </h1>
+    <p class="text-lg text-gray-600 dark:text-gray-700 max-w-xl mx-auto leading-relaxed">
+      {SITE.bio}
+    </p>
+    <p class="text-sm text-gray-500 mt-4">{SITE.description}</p>
+  </section>
+
+  <!-- 文章 -->
+  {
+    articles.length > 0 && (
+      <section class="mb-16">
+        <SectionTitle
+          emoji={SECTIONS.articles.emoji}
+          title={SECTIONS.articles.label}
+          moreHref={SECTIONS.articles.href}
+          moreText={SECTIONS.articles.more}
+        />
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map((a) => <ArticleCard article={a} />)}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 小说 -->
+  {
+    novelChapterCounts.length > 0 && (
+      <section class="mb-16">
+        <SectionTitle
+          emoji={SECTIONS.novels.emoji}
+          title={SECTIONS.novels.label}
+          moreHref={SECTIONS.novels.href}
+          moreText={SECTIONS.novels.more}
+        />
+        <div class="grid gap-5 sm:grid-cols-2">
+          {novelChapterCounts.map(({ novel, count }) => (
+            <NovelCard novel={novel} chapterCount={count} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 工具 -->
+  {
+    tools.length > 0 && (
+      <section class="mb-8">
+        <SectionTitle
+          emoji={SECTIONS.tools.emoji}
+          title={SECTIONS.tools.label}
+          moreHref={SECTIONS.tools.href}
+          moreText={SECTIONS.tools.more}
+        />
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {tools.map((t) => <ToolCard tool={t} />)}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

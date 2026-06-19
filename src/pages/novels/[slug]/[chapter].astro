@@ -1,0 +1,117 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ReaderToolbar from '@/components/reader/ReaderToolbar.tsx';
+import { fmtDate, slugOf, getChaptersOf } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels', (e) => !e.data.draft || import.meta.env.DEV);
+  const paths = [];
+
+  for (const novel of novels) {
+    const novelId = slugOf(novel);
+    const chapters = await getChaptersOf(novelId);
+    for (const chapter of chapters) {
+      const chapterSlug = chapter.id.split('/').pop()?.replace(/\.[^.]+$/, '');
+      paths.push({
+        params: { slug: novelId, chapter: chapterSlug },
+        props: { novel, chapter, novelId },
+      });
+    }
+  }
+  return paths;
+}
+
+const { novel, chapter, novelId } = Astro.props;
+const { Content } = await render(chapter);
+const { data } = chapter;
+
+// 全部章节，用于目录与上下章
+const chapters = await getChaptersOf(novelId);
+const currentIndex = chapters.findIndex((c) => c.id === chapter.id);
+const prev = currentIndex > 0 ? chapters[currentIndex - 1] : null;
+const next = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+
+const chapterSlug = (c: (typeof chapters)[number]) =>
+  c.id.split('/').pop()?.replace(/\.[^.]+$/, '');
+const currentChapterSlug = chapter.id.split('/').pop()?.replace(/\.[^.]+$/, '')!;
+
+// 传给 React 的目录数据
+const toc = chapters.map((c) => ({
+  slug: c.id.split('/').pop()?.replace(/\.[^.]+$/, '')!,
+  chapter: c.data.chapter,
+  title: c.data.title,
+}));
+---
+
+<BaseLayout title={`${data.title} · ${novel.data.title}`} description={novel.data.summary} narrow>
+  {/* 阅读器容器：data-theme/data-font 由 React 控制，初始默认值避免闪烁 */}
+  <div class="reader" data-theme="light" data-font="serif">
+    {/* React 工具栏：进度条 + 设置 + 目录抽屉 */}
+    <ReaderToolbar
+      client:load
+      novelId={novelId}
+      novelTitle={novel.data.title}
+      currentChapterSlug={currentChapterSlug}
+      currentChapter={data.chapter}
+      toc={toc}
+      baseHref={`/novels/${novelId}`}
+    />
+
+    <article>
+      <!-- 章节标题 -->
+      <header class="mb-8 text-center">
+        <a href={`/novels/${novelId}/`} class="text-sm text-muted hover:text-accent transition-colors">
+          《{novel.data.title}》
+        </a>
+        <p class="text-sm text-accent font-medium mt-3 mb-1">第 {data.chapter} 章</p>
+        <h1 class="font-serif text-3xl font-bold text-text mb-2">{data.title}</h1>
+        {data.publishedAt && (
+          <time class="text-xs text-faint" datetime={data.publishedAt.toISOString()}>
+            {fmtDate(data.publishedAt)}
+          </time>
+        )}
+      </header>
+
+      <!-- 章节正文：阅读器正文区（应用主题/字号） -->
+      <div class="reader-content py-6">
+        <Content />
+      </div>
+
+      <!-- 章节导航 -->
+      <nav class="mt-16 pt-8 border-t border-border-soft flex items-center justify-between gap-4">
+        {prev ? (
+          <a
+            href={`/novels/${novelId}/${chapterSlug(prev)}`}
+            class="flex-1 max-w-[45%] px-4 py-3 rounded-lg border border-border-soft hover:border-accent/50 hover:bg-surface-2 transition-colors group"
+          >
+            <span class="block text-xs text-faint mb-1">← 上一章</span>
+            <span class="block text-sm text-text group-hover:text-accent transition-colors truncate">
+              {prev.data.title}
+            </span>
+          </a>
+        ) : <span class="flex-1" />}
+
+        <a
+          href={`/novels/${novelId}/`}
+          class="px-4 py-3 text-sm text-muted hover:text-accent transition-colors shrink-0"
+          title="返回目录"
+        >
+          ☰
+        </a>
+
+        {next ? (
+          <a
+            href={`/novels/${novelId}/${chapterSlug(next)}`}
+            class="flex-1 max-w-[45%] px-4 py-3 rounded-lg border border-border-soft hover:border-accent/50 hover:bg-surface-2 transition-colors group text-right"
+          >
+            <span class="block text-xs text-faint mb-1">下一章 →</span>
+            <span class="block text-sm text-text group-hover:text-accent transition-colors truncate">
+              {next.data.title}
+            </span>
+          </a>
+        ) : <span class="flex-1" />}
+      </nav>
+    </article>
+  </div>
+</BaseLayout>

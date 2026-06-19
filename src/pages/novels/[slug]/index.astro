@@ -1,0 +1,129 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Tag from '@/components/Tag.astro';
+import { fmtDate, slugOf, getChaptersOf } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels', (e) => !e.data.draft || import.meta.env.DEV);
+  return novels.map((novel) => ({
+    params: { slug: slugOf(novel) },
+    props: { novel },
+  }));
+}
+
+const { novel } = Astro.props;
+const { Content } = await render(novel);
+const { data } = novel;
+const novelId = slugOf(novel);
+
+const chapters = await getChaptersOf(novelId);
+const statusVariant = data.status === '已完结' ? 'accent' : data.status === '暂停' ? 'muted' : 'default';
+---
+
+<BaseLayout title={data.title} description={data.summary}>
+  <!-- 头部：封面 + 信息 -->
+  <section class="mb-12 flex flex-col sm:flex-row gap-6">
+    <!-- 封面占位 -->
+    <div class="w-28 h-40 sm:w-32 sm:h-44 shrink-0 rounded-lg bg-gray-100 dark:bg-gray-200 border border-border flex items-center justify-center">
+      <span class="text-4xl font-semibold text-gray-400">{data.title.charAt(0)}</span>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <Tag text={data.status} variant={statusVariant} />
+        <Tag text={data.genre} />
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-bold mb-3 text-foreground leading-tight tracking-tight">
+        {data.title}
+      </h1>
+
+      <p class="text-gray-600 dark:text-gray-700 leading-relaxed mb-4">{data.summary}</p>
+
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+        {data.author && <span>作者：{data.author}</span>}
+        {data.startedAt && <span>起笔于 {fmtDate(data.startedAt)}</span>}
+        <span>共 {chapters.length} 章</span>
+      </div>
+
+      {data.tags.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mt-4">
+          {data.tags.map((t) => <Tag text={t} />)}
+        </div>
+      )}
+
+      {chapters.length > 0 && (
+        <a
+          href={`/novels/${novelId}/${chapters[0].id.split('/').pop()?.replace(/\.[^.]+$/, '')}`}
+          class="self-start mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors"
+          style="background-color:rgb(var(--btn-bg));color:rgb(var(--btn-fg));"
+          onmouseover="this.style.backgroundColor='rgb(var(--btn-bg-hover))'"
+          onmouseout="this.style.backgroundColor='rgb(var(--btn-bg))'"
+        >
+          {chapters.length > 0 ? '开始阅读' : '敬请期待'}
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
+    </div>
+  </section>
+
+  <!-- 简介（小说主页 index.md 的正文） -->
+  {
+    (Content) && (
+      <section class="mb-12">
+        <div class="prose prose-lg max-w-none">
+          <Content />
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 章节目录 -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-5 text-foreground tracking-tight flex items-center gap-2">
+      <span>📖</span>
+      <span>目录</span>
+      <span class="text-sm font-normal text-gray-500">（共 {chapters.length} 章）</span>
+    </h2>
+
+    {
+      chapters.length > 0 ? (
+        <ul class="space-y-1">
+          {chapters.map((c) => {
+            const chapterSlug = c.id.split('/').pop()?.replace(/\.[^.]+$/, '');
+            return (
+              <li>
+                <a
+                  href={`/novels/${novelId}/${chapterSlug}`}
+                  class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-2 transition-colors group"
+                >
+                  <span class="text-sm text-faint w-8 shrink-0 tabular-nums">
+                    {String(c.data.chapter).padStart(2, '0')}
+                  </span>
+                  <span class="flex-1 text-text group-hover:text-accent transition-colors">
+                    {c.data.title}
+                  </span>
+                  {c.data.publishedAt && (
+                    <span class="text-xs text-faint">{fmtDate(c.data.publishedAt)}</span>
+                  )}
+                  <span class="text-faint group-hover:text-accent transition-colors" aria-hidden="true">→</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p class="text-muted text-center py-12 bg-surface border border-border-soft rounded-xl">
+          还没有章节，故事即将开始……
+        </p>
+      )
+    }
+  </section>
+
+  <footer class="mt-12 pt-8 border-t border-border-soft">
+    <a href="/novels" class="text-sm text-muted hover:text-accent transition-colors">
+      ← 返回小说列表
+    </a>
+  </footer>
+</BaseLayout>

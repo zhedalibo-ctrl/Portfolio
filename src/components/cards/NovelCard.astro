@@ -1,0 +1,51 @@
+---
+import Tag from '@/components/Tag.astro';
+import { slugOf, type Novel } from '@/lib/content';
+
+interface Props {
+  novel: Novel;
+  chapterCount?: number;
+}
+const { novel, chapterCount } = Astro.props;
+const { data } = novel;
+const href = `/novels/${slugOf(novel)}/`;
+
+const statusVariant = data.status === '已完结'
+  ? 'accent'
+  : data.status === '暂停'
+  ? 'muted'
+  : 'default';
+
+const dotColor = data.status === '连载中' ? 'bg-green-500' : data.status === '已完结' ? 'bg-blue-500' : 'bg-gray-400';
+---
+
+<article class="card group p-5 flex gap-4 items-start">
+  <!-- 封面占位 -->
+  <div class="w-16 h-22 shrink-0 rounded-md bg-gray-100 dark:bg-gray-200 border border-border flex items-center justify-center">
+    <span class="text-2xl font-semibold text-gray-400">{data.title.charAt(0)}</span>
+  </div>
+
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 mb-1.5">
+      <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+        <span class:list={['w-1.5 h-1.5 rounded-full', dotColor]}></span>
+        {data.status}
+      </span>
+      <span class="text-xs text-gray-400">·</span>
+      <Tag text={data.genre} />
+    </div>
+
+    <h3 class="text-base font-semibold mb-1 text-foreground tracking-tight group-hover:text-accent transition-colors">
+      <a href={href}>{data.title}</a>
+    </h3>
+
+    <p class="text-sm text-gray-600 dark:text-gray-700 leading-relaxed line-clamp-2 mb-2">
+      {data.summary}
+    </p>
+
+    <div class="flex items-center gap-3 text-xs text-gray-500">
+      {chapterCount !== undefined && <span>{chapterCount} 章</span>}
+      {data.startedAt && <span>· {data.startedAt.getFullYear()}</span>}
+    </div>
+  </div>
+</article>

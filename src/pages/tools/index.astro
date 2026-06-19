@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolCard from '@/components/cards/ToolCard.astro';
+import { getTools } from '@/lib/content';
+
+const tools = await getTools();
+---
+
+<BaseLayout title="工具" description="全部工具与 SaaS 作品">
+  <header class="mb-10">
+    <h1 class="text-3xl font-bold mb-2 text-foreground tracking-tight">🛠️ 工具</h1>
+    <p class="text-gray-600 dark:text-gray-700">一些好玩的小工具、App 与 SaaS 产品。</p>
+  </header>
+
+  {
+    tools.length > 0 ? (
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map((t) => <ToolCard tool={t} />)}
+      </div>
+    ) : (
+      <p class="text-muted text-center py-20">工具箱还在组装中。</p>
+    )
+  }
+</BaseLayout>

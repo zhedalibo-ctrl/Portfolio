@@ -1,0 +1,97 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Tag from '@/components/Tag.astro';
+import { slugOf } from '@/lib/content';
+
+export async function getStaticPaths() {
+  const tools = await getCollection('tools', (e) => !e.data.draft || import.meta.env.DEV);
+  return tools.map((tool) => ({
+    params: { slug: slugOf(tool) },
+    props: { tool },
+  }));
+}
+
+const { tool } = Astro.props;
+const { Content } = await render(tool);
+const { data } = tool;
+
+const statusVariant = data.status === '运营中' ? 'accent' : data.status === '已下线' ? 'muted' : 'default';
+const statusDot = data.status === '运营中' ? 'bg-green-500' : data.status === '开发中' ? 'bg-amber-500' : 'bg-gray-400';
+---
+
+<BaseLayout title={data.name} description={data.tagline}>
+  <!-- 顶部 Banner：截图占位 + 卖点 -->
+  <section class="mb-10 -mx-6 sm:mx-0 sm:rounded-xl overflow-hidden border-b sm:border border-border">
+    <div class="h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-200 dark:to-gray-300 flex items-center justify-center relative">
+      <span class="text-7xl font-semibold text-gray-400">{data.name.charAt(0)}</span>
+    </div>
+  </section>
+
+  <!-- 标题 + 元信息 -->
+  <section class="mb-8">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <Tag text={data.type} variant="accent" />
+      <span class="inline-flex items-center gap-1.5 text-xs text-gray-500">
+        <span class:list={['w-1.5 h-1.5 rounded-full', statusDot]}></span>
+        {data.status}
+      </span>
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-bold mb-2 text-foreground tracking-tight">{data.name}</h1>
+    <p class="text-lg text-gray-600 dark:text-gray-700 leading-relaxed mb-6">{data.tagline}</p>
+
+    <!-- 行动按钮：Geist 风格，主操作黑/白，次操作描边 -->
+    <div class="flex flex-wrap items-center gap-3">
+      {data.url && (
+        <a
+          href={data.url}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors"
+          style="background-color:rgb(var(--btn-bg));color:rgb(var(--btn-fg));"
+          onmouseover="this.style.backgroundColor='rgb(var(--btn-bg-hover))'"
+          onmouseout="this.style.backgroundColor='rgb(var(--btn-bg))'"
+        >
+          立即访问
+          <span aria-hidden="true">↗</span>
+        </a>
+      )}
+      {data.repo && (
+        <a
+          href={data.repo}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md border border-border bg-transparent text-foreground transition-colors hover:bg-gray-100 dark:hover:bg-gray-200"
+        >
+          <span aria-hidden="true">⌥</span> 源码仓库
+        </a>
+      )}
+    </div>
+  </section>
+
+  <!-- 详细介绍 -->
+  <section class="mb-10">
+    <div class="prose prose-lg max-w-none">
+      <Content />
+    </div>
+  </section>
+
+  <!-- 技术栈 -->
+  {data.stack.length > 0 && (
+    <section class="mb-10 p-6 bg-gray-100 dark:bg-gray-200 rounded-lg border border-border">
+      <h2 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+        <span aria-hidden="true">🔧</span> 技术栈
+      </h2>
+      <div class="flex flex-wrap gap-2">
+        {data.stack.map((s) => <Tag text={s} />)}
+      </div>
+    </section>
+  )}
+
+  <footer class="mt-12 pt-8 border-t border-border">
+    <a href="/tools" class="text-sm text-gray-500 hover:text-accent transition-colors">
+      ← 返回工具列表
+    </a>
+  </footer>
+</BaseLayout>
