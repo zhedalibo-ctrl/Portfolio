@@ -1,0 +1,10 @@
+# 网站静态部署配置（区别于 worker/ 里的发布接口）
+# 用法：先 npm run build，再 npx wrangler deploy -c wrangler.site.toml
+name = "portfolio"
+compatibility_date = "2025-01-01"
+
+# 静态资源目录：Astro 构建产物
+assets = { directory = "./dist", binding = "ASSETS" }
+
+# 主入口：一个空的 Worker，把所有请求交给静态资源处理
+main = "src/worker-site.ts"
